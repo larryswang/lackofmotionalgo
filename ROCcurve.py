@@ -7,7 +7,7 @@ argv[1]: Lack of Motion file name -- .txt expected
 argv[2]: BodiTrak mat file name -- .xlsx expected
 argv[3]: threshold for Lack of Motion file, the threshold for each sensor should be 
     argv[3] * sigma_i, wherein the sigma_i is the standard deviation of sensor i
-argv[4]: threshold for BodiTrak mat, the threshold should be in format of mmHg of pressure change
+argv[4]: threshold for BodiTrak mat, the threshold should be in format of (mmHg)^2 of pressure square change
 
 This part of the algorithm is confidential
 Please contact shiyuw@umich.edu at Biomechanics Research Lab
@@ -91,6 +91,15 @@ def main():
                 
 
     print("finish processing Lack of Motion data")
+
+    print("The motion detected by Lack of Motion data system")
+    print("top motion:")
+    print(move_top)
+    print("mid motion:")
+    print(move_mid)
+    print("bot motion:")
+    print(move_bot)
+
     ### motion determined by BodiTrak system
     ### please make sure that the usb is at head side
     print("loading BodiTrak excel data, it may take a while")
@@ -117,11 +126,12 @@ def main():
 
         ## compare with pressure map in the last frame to determine any motion
         if last_pressure_map is None:
+            last_pressure_map = cur_pressure_map
             continue
         
-        top_diff = np.linalg.norm(cur_pressure_map[:500] - last_pressure_map[:500], 2)
-        mid_diff = np.linalg.norm(cur_pressure_map[500:1000] - last_pressure_map[500:1000], 2)
-        bot_diff = np.linalg.norm(cur_pressure_map[1000:] - last_pressure_map[1000:], 2)
+        top_diff = np.linalg.norm(cur_pressure_map[:540] - last_pressure_map[:540], 2)
+        mid_diff = np.linalg.norm(cur_pressure_map[540:1216] - last_pressure_map[540:1216], 2)
+        bot_diff = np.linalg.norm(cur_pressure_map[1216:] - last_pressure_map[1216:], 2)
 
         if top_diff > th_boditrak:
             move_top_boditrak.append(curtime)
@@ -131,6 +141,14 @@ def main():
             move_bot_boditrak.append(curtime)
 
         last_pressure_map = cur_pressure_map
+    
+    print("The motion detected by BodiTrak system")
+    print("top motion:")
+    print(move_top_boditrak)
+    print("mid motion:")
+    print(move_mid_boditrak)
+    print("bot motion:")
+    print(move_bot_boditrak)
 
 if __name__ == "__main__":
     main()

@@ -2,11 +2,15 @@
 
 ## Files
 README.md     introductory files
+
 ROCcurve.py   the file used to generate ROC curve
+
 rotation.py   the file used to align rotation
 
 20190405-1.txt example data from lack of motion system
+
 20190405.xlsx example data from BodiTrak system
+
 data.txt example data from wearable IMU sensor
 
 ## ROCcurve.py

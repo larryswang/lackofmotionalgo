@@ -7,6 +7,7 @@ argv[2]: Lack of Motion file name -- .txt expected
     enter the name before "-", this script will search for all txt files and process them
 argv[3]: threshold for Lack of Motion file, the threshold for each sensor should be 
     argv[3] * sigma_i, wherein the sigma_i is the standard deviation of sensor i
+argv[4]: axis selected for rotation file, 1 for x axis, 2 for y axis and 3 for z axis
 
 This part of the algorithm is confidential
 Please contact shiyuw@umich.edu at Biomechanics Research Lab
@@ -17,8 +18,8 @@ import numpy as np
 import glob
 
 def main():
-    if len(sys.argv) != 4:
-        print("must specify 3 additional arugments, detials see script!")
+    if len(sys.argv) != 5:
+        print("must specify 4 additional arugments, detials see script!")
         exit(1)
     
     th_lackofmotion = float(sys.argv[3])
@@ -29,7 +30,7 @@ def main():
     print("calibrating lack of motion system")
 
     calibration_data = []
-    with open(sys.argv[1] + "-1.txt") as f:
+    with open(sys.argv[2] + "-1.txt") as f:
         lines = f.readlines()
         for line in lines:
             if len(calibration_data) < 1000 and line[:3] != "AVE":
@@ -50,7 +51,7 @@ def main():
     move_mid = []
     move_bot = []
 
-    for filename in glob.glob(sys.argv[1] + "*.txt"):
+    for filename in glob.glob(sys.argv[2] + "*.txt"):
         print("calibration done, processing file %s" % filename)
 
         data_lackofmotion = []
@@ -87,6 +88,49 @@ def main():
                 
 
     print("finish processing Lack of Motion data")
+    print("The motion detected by Lack of Motion data system")
+    print("top motion:")
+    print(move_top)
+    print("mid motion:")
+    print(move_mid)
+    print("bot motion:")
+    print(move_bot)
+
+    ### process rotation file
+    print("processing rotation file")
+
+    rot_10 = []
+    rot_20 = []
+    rot_30 = []
+
+    axis = int(sys.argv[4])
+
+    with open(sys.argv[1]) as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.strip().split()
+
+            line[1] = float(line[1])
+            line[2] = float(line[2])
+            line[3] = float(line[3])
+
+            if abs(line[axis] - 10) <= 1:
+                rot_10.append(line[0])
+            
+            elif abs(line[axis] - 20) <= 1:
+                rot_20.append(line[0])
+
+            elif abs(line[axis] - 30) <= 1:
+                rot_30.append(line[0])
+
+    print("finish processing rotation file")
+    print("rot at 10 degree:")
+    print(rot_10)
+    print("rot at 20 degree:")
+    print(rot_20)
+    print("rot at 30 degree:")
+    print(rot_30)
+    
 
 if __name__ == "__main__":
     main()
